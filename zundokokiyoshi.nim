@@ -1,30 +1,25 @@
-# How to compile: nim c -r --threads:on FILENAME.nim
-import math, threadpool
+# How to compile: nim c -r FILENAME.nim
+import math
 
 type ZunDoko = enum
   doko, zun
 
-iterator zundokoGenerator(id: int): ZunDoko =
+iterator zundokoGenerator(): ZunDoko =
   yield case math.random(2).ZunDoko:
-          of zun:  echo "ズン" & $id; zun
-          of doko: echo "ドコ" & $id; doko
+          of zun:  echo "ズン"; zun
+          of doko: echo "ドコ"; doko
 
-var song {.threadvar.}: seq[int]
-
-proc kiyoshi(id: int = 0) {.thread.} =
+proc kiyoshi() =
   block done:
-    song = @[]
+    var song: seq[int] = @[]
     while true:
-      for z_or_d in zundokoGenerator(id):
+      for z_or_d in zundokoGenerator():
         song.add(z_or_d.int)
         if z_or_d == doko:
           defer: song = @[]
           if song.sum >= 4:
-            echo "キ ヨ シ!" & $id
+            echo "キ ヨ シ!"
             break done
 
 when isMainModule:
-  let max_threads = 10
-  for i in 1..max_threads:
-    spawn kiyoshi(i)
-  sync()
+  kiyoshi()
