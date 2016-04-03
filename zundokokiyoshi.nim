@@ -1,20 +1,21 @@
-# How to compile: nim c -r FILENAME.nim
-import math
+# How to compile:
+# 1. nim c -r FILENAME.nim
+# 2. nim c -r --define:zunGreaterThan4 FILENAME.nim
 
-type ZunDoko = enum
-  doko, zun
+import math, ./lib/zdcore
 
-iterator zundokoGenerator(): ZunDoko =
-  yield case math.random(2).ZunDoko:
-          of zun:  echo "ズン"; zun
-          of doko: echo "ドコ"; doko
+template isKiyoshi(num: typed): bool =
+  when defined(zunGreaterThan4):
+    4 <= num.sum
+  else:
+    4 == num.sum
 
-var song: seq[int] = @[]
+var zdPattern: seq[int] = @[]
 while true:
   for z_or_d in zundokoGenerator():
-    song.add(z_or_d.int)
+    zdPattern.add(z_or_d.int)
     if z_or_d == doko:
-      defer: song = @[]
-      if song.sum >= 4:
+      defer: zdPattern = @[]
+      if zdPattern.isKiyoshi:
         echo "キ ヨ シ!"
         quit 0
